@@ -43,9 +43,9 @@ update msg model =
             case (keytype keyCode) of 
                 Pause ->
                     if (model.isPaused) then
-                        (Model False model.leftBarPosition model.rightBarPosition, Cmd.none)
+                        ({model | isPaused = False}, Cmd.none)
                     else if (not model.isPaused) then
-                        (Model True model.leftBarPosition model.rightBarPosition, Cmd.none)
+                        ({model | isPaused = True}, Cmd.none)
                     else 
                         (model, Cmd.none)
                 _ -> playerMove model keyCode
@@ -88,15 +88,15 @@ playerMove model keyCode =
                 Up ->
                     let
                         oldLeftbarPositionX = model.leftBarPosition.x
-                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y+10) Upwards
+                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y+10)
                     in
-                        (Model False newLeftBarPosition model.rightBarPosition , Cmd.none)
+                        ({ model | leftBarPosition = newLeftBarPosition}, Cmd.none)
                 Down ->
                     let
                         oldLeftbarPositionX = model.leftBarPosition.x
-                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y-10) Downwards
+                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y-10)
                     in
-                        (Model False newLeftBarPosition model.rightBarPosition , Cmd.none)
+                        ({ model | leftBarPosition = newLeftBarPosition}, Cmd.none)
                 _ ->
                     (model, Cmd.none)                    
         True ->
@@ -110,8 +110,8 @@ computerMove model =
     False ->
         let
             oldRightBarPositionX = model.rightBarPosition.x
-            newRightBarPosition = Position oldRightBarPositionX (model.rightBarPosition.y-1) Downwards
+            newRightBarPosition = Position oldRightBarPositionX (model.rightBarPosition.y-1)
         in
-            (Model False model.leftBarPosition newRightBarPosition, Cmd.none)
+            ({ model | rightBarPosition = newRightBarPosition }, Cmd.none)
     True ->
         (model, Cmd.none)

@@ -10,19 +10,14 @@ type alias Model =
 type alias Position = 
     { x: Int
     , y: Int
-    , direction : Direction
     }
-
-type Direction 
-    = Upwards
-    | Downwards
 
 -- Initalize the model.
 initialModel : Model
 initialModel = 
     { isPaused = True -- Start the game in pause mode
-    , leftBarPosition = Position 10 0 Upwards
-    , rightBarPosition = Position 200 0 Downwards
+    , leftBarPosition = Position 10 0
+    , rightBarPosition = Position 200 0
     }
 
 type alias Configuration =
