@@ -67,8 +67,8 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   let
-    leftBar = rect [ x (toString model.leftBarPosition.x), y (toString model.leftBarPosition.y), width "1", height "100" , stroke "green" ] []
-    rightBar = rect [ x (toString model.rightBarPosition.x), y (toString model.rightBarPosition.y), width "1", height "100", stroke "red" ] []
+    leftBar = rect [ x (toString model.leftBarPosition.x), y (toString model.leftBarPosition.y), width (toString config.bar.width), height (toString config.bar.height) , stroke "green" ] []
+    rightBar = rect [ x (toString model.rightBarPosition.x), y (toString model.rightBarPosition.y), width (toString config.bar.width), height (toString config.bar.height), stroke "red" ] []
   in
     div []
     [ div [] [ Html.text "ElmPong"]
@@ -88,13 +88,13 @@ playerMove model keyCode =
                 Up ->
                     let
                         oldLeftbarPositionX = model.leftBarPosition.x
-                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y+10)
+                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y-10)
                     in
                         ({ model | leftBarPosition = newLeftBarPosition}, Cmd.none)
                 Down ->
                     let
                         oldLeftbarPositionX = model.leftBarPosition.x
-                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y-10)
+                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y+10)
                     in
                         ({ model | leftBarPosition = newLeftBarPosition}, Cmd.none)
                 _ ->
@@ -115,3 +115,4 @@ computerMove model =
             ({ model | rightBarPosition = newRightBarPosition }, Cmd.none)
     True ->
         (model, Cmd.none)
+    

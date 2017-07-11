@@ -19,8 +19,8 @@ type Key
 keytype : Int -> Key
 keytype keyCode = 
     case keyCode of
-        40 -> Up
-        38 -> Down
+        38 -> Up
+        40 -> Down
         80 -> Pause
         _ -> Undefined
 
