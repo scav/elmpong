@@ -1,4 +1,4 @@
-module Game exposing (..)
+module Main exposing (..)
 
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -7,8 +7,7 @@ import Html exposing (Html, div, text, program)
 import Keyboard
 
 import Models exposing (..)
-import Controls exposing (..)
-import Debug
+import KeyMap as KM exposing (..)
 
 
 -- MAIN
@@ -40,15 +39,16 @@ update msg model =
     case msg of
         Tick time ->
             computerMove model
-        KeyMsg code ->
-            if (code == pause && model.isPaused) then
-                (Model False model.leftBarPosition model.rightBarPosition, Cmd.none)
-            else if (code == pause && not model.isPaused) then
-                (Model True model.leftBarPosition model.rightBarPosition, Cmd.none)
-            else 
-                playerMove model code
-                
-
+        KeyMsg keyCode ->
+            case (keytype keyCode) of 
+                Pause ->
+                    if (model.isPaused) then
+                        (Model False model.leftBarPosition model.rightBarPosition, Cmd.none)
+                    else if (not model.isPaused) then
+                        (Model True model.leftBarPosition model.rightBarPosition, Cmd.none)
+                    else 
+                        (model, Cmd.none)
+                _ -> playerMove model keyCode
 
 -- SUBSCRIPTIONS
 
@@ -62,16 +62,12 @@ subscriptions model =
 
 
 
-
-
-
-
 -- VIEW CODE
 
 view : Model -> Html Msg
 view model =
   let
-    leftBar = rect [ x (toString model.leftBarPosition.x), width "1", height "100" , stroke "green" ] []
+    leftBar = rect [ x (toString model.leftBarPosition.x), y (toString model.leftBarPosition.y), width "1", height "100" , stroke "green" ] []
     rightBar = rect [ x (toString model.rightBarPosition.x), y (toString model.rightBarPosition.y), width "1", height "100", stroke "red" ] []
   in
     div []
@@ -82,24 +78,27 @@ view model =
         ]
     ]
 
-        
-{--
-    GAME ENGINE
-    
-    This is the simple implementation of the game engine.
-    It is currently very simple as I familiarise myself with Elm.
-
-    Currently it handles the following:
-    - Human Player
-    - Computer Player
---}
 
 -- Player's movement
 playerMove : Model -> Int -> (Model, Cmd Msg)
 playerMove model keyCode =
     case model.isPaused of
         False ->
-            (Model False model.leftBarPosition model.rightBarPosition, Cmd.none)
+            case (keytype keyCode) of
+                Up ->
+                    let
+                        oldLeftbarPositionX = model.leftBarPosition.x
+                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y+10) Upwards
+                    in
+                        (Model False newLeftBarPosition model.rightBarPosition , Cmd.none)
+                Down ->
+                    let
+                        oldLeftbarPositionX = model.leftBarPosition.x
+                        newLeftBarPosition = Position oldLeftbarPositionX (model.leftBarPosition.y-10) Downwards
+                    in
+                        (Model False newLeftBarPosition model.rightBarPosition , Cmd.none)
+                _ ->
+                    (model, Cmd.none)                    
         True ->
             (model, Cmd.none)
     

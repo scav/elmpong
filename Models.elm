@@ -22,7 +22,7 @@ initialModel : Model
 initialModel = 
     { isPaused = True -- Start the game in pause mode
     , leftBarPosition = Position 10 0 Upwards
-    , rightBarPosition = Position 200 50 Downwards
+    , rightBarPosition = Position 200 0 Downwards
     }
 
 type alias Configuration =
