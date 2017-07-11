@@ -1,9 +1,9 @@
 module Models exposing (..)
 
 type alias Model = 
-    { isPaused : Bool
-    , leftBarPosition : Position
-    , rightBarPosition : Position     
+    { isPaused          : Bool
+    , leftBarPosition   : Position
+    , rightBarPosition  : Position 
     }
 
 -- Any objects position
@@ -16,8 +16,8 @@ type alias Position =
 initialModel : Model
 initialModel = 
     { isPaused = True -- Start the game in pause mode
-    , leftBarPosition = Position 10 0
-    , rightBarPosition = Position 200 0
+    , leftBarPosition = Position 10 200
+    , rightBarPosition = Position 790 200
     }
 
 type alias Configuration =
@@ -26,23 +26,21 @@ type alias Configuration =
     , heightpx      : String
     , widthpx       : String
     , viewboxSize   : String
-    , blackBar      : Bar
+    , bar           : Bar
     }
 
 type alias Bar =
     { height    :Int
     , width     : Int
-    , heightpx  : String
-    , widthpx   : String
     }
 
 -- Initialize the configuration.
 config : Configuration
 config = 
-    { height = 500
-    , width = 500
-    , heightpx = "800"
-    , widthpx = "600"
-    , viewboxSize = "0 0 210 210"
-    , blackBar = Bar 50 10 "50" "10" 
+    { height = 0
+    , width = 0
+    , heightpx = "600"
+    , widthpx = "800"
+    , viewboxSize = "0 0 800 600"
+    , bar = Bar 200 2
     }
