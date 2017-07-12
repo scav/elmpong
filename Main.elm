@@ -5,11 +5,10 @@ import Svg.Attributes exposing (..)
 import Time exposing (Time, millisecond)
 import Html exposing (Html, div, text, program)
 import Keyboard
+import AnimationFrame exposing (..)
 
 import Models exposing (..)
 import KeyMap as KM exposing (..)
-
-import Debug exposing (..)
 
 -- MAIN
 main : Program Never Model Msg
@@ -30,14 +29,14 @@ init =
 
 type Msg
     = KeyMsg Keyboard.KeyCode
-    | Tick Time
+    | UpdateView Time
     
 -- VIEW
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Tick time ->
+        UpdateView time ->
             ({ model | computerBar = computerMove model }, Cmd.none)
         KeyMsg keyCode ->
             case (keytype keyCode) of 
@@ -53,7 +52,7 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Time.every millisecond Tick
+        [ AnimationFrame.diffs UpdateView
         , Keyboard.downs KeyMsg
         ]
 

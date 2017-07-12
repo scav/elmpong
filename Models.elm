@@ -40,7 +40,7 @@ type alias Configuration =
 -- Initalize the model.
 initialModel : Model
 initialModel = 
-    { isPaused = True -- Start the game in pause mode
+    { isPaused = False -- Start the game in pause mode
     , playerBar = Bar 200 2 (Position 10 200) DirectionUp 
     , computerBar  = Bar 200 2 (Position (config.width - 10) 200) DirectionUp 
     }
