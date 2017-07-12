@@ -82,26 +82,6 @@ view model =
     ]
     ]
 
--- Player's movement
--- playerMove : Model -> Int -> Bar
--- playerMove model keyCode =
---     case model.isPaused of
---         False ->
---             case (keytype keyCode) of
---                 Up ->
---                     if (model.playerBar.position.y == 0) then
---                         model.playerBar
---                     else                     
---                         updatePosition model.playerBar (-10)
---                 Down ->
---                     if (model.playerBar.position.y == 400) then
---                         model.playerBar
---                     else
---                         updatePosition model.playerBar (10)
---                 _ ->    
---                     model.playerBar
---         _ -> model.playerBar
-
 playerMove : Model -> Int -> Bar
 playerMove model keyCode =
     case model.isPaused of
@@ -150,8 +130,8 @@ updatePosition bar num =
     in
         { bar | position = newPosition }
 
-collision : Bar -> Bool -- Hender koden blir stuck her | Reprodusers ved å stoppe helt inntil topp / bot og
-collision bar =         -- så klikke en knapp om gangen rolig.
+collision : Bar -> Bool 
+collision bar = 
     let
         y = bar.position.y
         bottom = y + bar.height         
