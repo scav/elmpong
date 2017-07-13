@@ -9,19 +9,28 @@ type alias Model =
     { isPaused      : Bool
     , playerBar     : Bar
     , computerBar   : Bar 
+    , ball          : Ball
     }
 
 type alias Bar =
-    { height    :Int
+    { height    : Int
     , width     : Int
     , position  : Position
     , direction : Direction
     }
 
+type alias Ball =
+    { x         : Float
+    , y         : Float
+    , vx        : Float
+    , vy        : Float
+    , radius    : Float
+    }
+
 -- Any objects position
 type alias Position = 
-    { x: Int
-    , y: Int
+    { x: Float
+    , y: Float
     }
 
 type alias Configuration =
@@ -32,17 +41,13 @@ type alias Configuration =
     , viewboxSize   : String
     }
 
-{--
-    Model init. All code below this is defaults that
-    the application will start off with once Elm runs.
---}
-
 -- Initalize the model.
 initialModel : Model
 initialModel = 
-    { isPaused = False -- Start the game in pause mode
-    , playerBar = Bar 200 2 (Position 10 200) DirectionUp 
-    , computerBar  = Bar 200 2 (Position (config.width - 10) 200) DirectionUp 
+    { isPaused = True -- Start the game in pause mode
+    , playerBar = Bar 200 2 (Position 50 200) DirectionUp 
+    , computerBar  = Bar 200 2 (Position (toFloat config.width - 50) 180) DirectionUp 
+    , ball = Ball 400 200 10 2 10
     }
 
 -- Initialize the configuration.
