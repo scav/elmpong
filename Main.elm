@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Html.CssHelpers
 import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
 import Time exposing (Time, millisecond)
@@ -7,9 +8,11 @@ import Html as Html exposing (..)
 import Html.Attributes as HA exposing (..)
 import Keyboard
 import AnimationFrame exposing (..)
+import Html.CssHelpers as CSSH exposing (..)
 
 import Models exposing (..)
 import KeyMap exposing (..)
+import Style as CSS exposing (..)
 
 import Tuple exposing (first, second)
 
@@ -63,6 +66,9 @@ subscriptions model =
 
 -- VIEW CODE
 
+{ id, class, classList } =
+    Html.CssHelpers.withNamespace "elmpong"
+
 view : Model -> Html Msg
 view model =
   let
@@ -70,17 +76,23 @@ view model =
     
     leftBar = Svg.rect [ x (toString model.playerBar.position.x), y (toString model.playerBar.position.y), SA.width (toString model.playerBar.width), SA.height (toString model.playerBar.height) , stroke "green" ] []
     rightBar = Svg.rect [ x (toString model.computerBar.position.x), y (toString model.computerBar.position.y), SA.width (toString model.computerBar.width), SA.height (toString model.computerBar.height), stroke "red" ] []
-    ball = Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), stroke "#01DF01" ] []
+    ball = Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [CSS.Ball] ] []
   in
-    Html.body [HA.style [("background-color", "#333333")]] [
-        Html.div [] 
-        [ Html.div [] [ Html.text "ElmPong" ]
-        , Html.div [] [ Html.text ("Game state: " ++ toString model.isPaused) ]
-        , Html.text ("Player :" ++ toString model.playerBar)
-        , Html.br [] []
-        , Html.text ("Computer: " ++ toString model.computerBar)
-        , Html.br [] []
-        , Html.text ("Ball location x:" ++ toString model.ball)
+    Html.body []  [ 
+        Html.div []  
+        [ Html.div []
+            [ Html.CssHelpers.style CSS.css -- Adding CSS
+            , Html.text "ElmPong"
+            , Html.br [] []
+            , Html.text  ("Player :" ++ toString model.playerBar)
+            , Html.br [] [] 
+            , Html.text ("Game state: " ++ toString model.isPaused)
+            , Html.br [] []
+            , Html.text ("Computer: " ++ toString model.computerBar)
+            , Html.br [] []
+            , Html.text ("Ball location x:" ++ toString model.ball)
+            , Html.br [] []
+            ] 
         , Html.div [HA.class "gamefield"] [
             Svg.svg [ viewBox config.viewboxSize, SA.width config.widthpx, SA.height config.heightpx ]
                 [ border
@@ -144,7 +156,7 @@ ballMove model =
                 target = (move ball.x ball.y vx 0)                
                 a = {ball | x = first target, y = second target, vx = vx }
             in
-                ({ model | ball = a }, Cmd.none)
+                ({ model | ball = a , computerBar = computerMove model}, Cmd.none) -- dirty hack moving computer with ball.
 
         _-> (model, Cmd.none)
 
