@@ -6,9 +6,6 @@
 
 module KeyMap exposing (..)
 
-import Keyboard
-
-
 -- Represent keys as types to faclilitate pattern matching
 -- type alias Key = { keyCode : Keyboard.KeyCode }
 

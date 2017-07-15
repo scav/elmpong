@@ -43,15 +43,14 @@ type Msg
 
 
 
--- VIEW
+-- UPDATE
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateView time ->
-            --({ model | computerBar = computerMove model }, Cmd.none)
-            ballMove model
+            ( { model | ball = moveBall model, computerBar = moveComputer model }, Cmd.none )
 
         KeyMsg keyCode ->
             case (KeyMap.keytype keyCode) of
@@ -62,7 +61,7 @@ update msg model =
                         ( { model | isPaused = True }, Cmd.none )
 
                 _ ->
-                    ( { model | playerBar = playerMove model keyCode }, Cmd.none )
+                    ( { model | playerBar = movePlayer model keyCode }, Cmd.none )
 
 
 
@@ -127,8 +126,12 @@ view model =
             ]
 
 
-playerMove : Model -> Int -> Bar
-playerMove model keyCode =
+
+-- APPLICATION LOGIC
+
+
+movePlayer : Model -> Int -> Bar
+movePlayer model keyCode =
     case model.isPaused of
         False ->
             case (KeyMap.keytype keyCode) of
@@ -136,13 +139,13 @@ playerMove model keyCode =
                     if (model.playerBar.position.y == 0) then
                         model.playerBar
                     else
-                        updatePosition model.playerBar (-30)
+                        updateBarPosition model.playerBar (-30)
 
                 Down ->
                     if (model.playerBar.position.y == 400) then
                         model.playerBar
                     else
-                        updatePosition model.playerBar (30)
+                        updateBarPosition model.playerBar (30)
 
                 _ ->
                     model.playerBar
@@ -155,67 +158,72 @@ playerMove model keyCode =
 -- Computers movement
 
 
-computerMove : Model -> Bar
-computerMove model =
+{-| Move computer in a stupid way, only moving it up and down based on the
+current direction of the model.
+-}
+moveComputer : Model -> Bar
+moveComputer model =
     case model.isPaused of
         False ->
             case collision model.computerBar of
                 True ->
                     case model.computerBar.direction of
                         DirectionUp ->
-                            switchDirection (updatePosition model.computerBar (10))
+                            switchDirection (updateBarPosition model.computerBar (10))
 
                         DirectionDown ->
-                            switchDirection (updatePosition model.computerBar (-10))
+                            switchDirection (updateBarPosition model.computerBar (-10))
 
                 False ->
                     case model.computerBar.direction of
                         DirectionUp ->
-                            updatePosition model.computerBar (-10)
+                            updateBarPosition model.computerBar (-10)
 
                         DirectionDown ->
-                            updatePosition model.computerBar (10)
+                            updateBarPosition model.computerBar (10)
 
         _ ->
             model.computerBar
 
 
-
--- Move the ball based on some super simple vector subtraction.
--- Will expand later. In order to turn direction: (negate <| vector_speed)
-
-
-ballMove : Model -> ( Model, Cmd Msg )
-ballMove model =
+{-| Move the ball based on some super simple vector subtraction.
+Will expand later. In order to turn direction: (negate <| vector_speed)
+-}
+moveBall : Model -> Ball
+moveBall model =
     case model.isPaused of
         False ->
             let
                 ball =
                     model.ball
 
-                vx =
-                    ballCollision model
+                bv =
+                    ballVectors model
 
                 target =
-                    (move ball.x ball.y vx 0)
+                    (move ball.x ball.y (first bv) (second bv))
 
-                a =
-                    { ball | x = first target, y = second target, vx = vx }
+                newBall =
+                    { ball | x = first target, y = second target, vx = first bv, vy = second bv }
             in
-                ( { model | ball = a, computerBar = computerMove model }, Cmd.none )
+                newBall
 
-        -- dirty hack moving computer with ball.
         _ ->
-            ( model, Cmd.none )
+            model.ball
 
 
+{-| Move any object based on its coordinates and vector.
+-}
 move : Float -> Float -> Float -> Float -> ( Float, Float )
 move x y xv yv =
     ( (x - xv), (y - yv) )
 
 
-ballCollision : Model -> Float
-ballCollision model =
+{-| Register if the ball collided with a bar, and negate the
+vector should that happen.
+-}
+ballVectors : Model -> ( Float, Float )
+ballVectors model =
     let
         midfield =
             (toFloat config.width / 2)
@@ -230,11 +238,11 @@ ballCollision model =
             model.playerBar
     in
         if (ball.x == playerBar.position.x && barCollision playerBar ball) then
-            negate ball.vx
+            ( negate ball.vx, negate ball.vy )
         else if (ball.x == computerBar.position.x && barCollision computerBar ball) then
-            negate ball.vx
+            ( negate ball.vx, ball.vy )
         else
-            ball.vx
+            ( ball.vx, ball.vy )
 
 
 barCollision : Bar -> Ball -> Bool
@@ -252,8 +260,8 @@ barCollision bar ball =
             True
 
 
-updatePosition : Bar -> Float -> Bar
-updatePosition bar num =
+updateBarPosition : Bar -> Float -> Bar
+updateBarPosition bar num =
     let
         newY =
             bar.position.y + num

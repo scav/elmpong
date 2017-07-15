@@ -21,7 +21,7 @@ style =
             ]
         , id Info
             [ backgroundColor (rgb 200 128 64)
-            , color (hex "CCFFFF")
+            , color (hex "#CCFFFF")
             , width (pct 100)
             , height (pct 100)
             , boxSizing borderBox
@@ -29,7 +29,7 @@ style =
             , margin zero
             ]
         , id Ball
-            [ fill (hex "#FFFFFF")
+            [ fill (hex "#FFFF00")
             ]
         ]
 

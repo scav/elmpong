@@ -6,6 +6,12 @@ type Direction
     | DirectionDown
 
 
+type BarImpact
+    = Top
+    | Middle
+    | Bottom
+
+
 type alias Model =
     { isPaused : Bool
     , playerBar : Bar
@@ -57,7 +63,7 @@ type alias Configuration =
 initialModel : Model
 initialModel =
     { isPaused = True -- Start the game in pause mode
-    , playerBar = Bar 200 2 (Position 50 200) DirectionUp
+    , playerBar = Bar 200 2 (Position 50 170) DirectionUp
     , computerBar = Bar 200 2 (Position (toFloat config.width - 50) 180) DirectionUp
     , ball = Ball 400 200 10 2 10
     }
