@@ -1,11 +1,6 @@
 module Models exposing (..)
 
 
-type Direction
-    = DirectionUp
-    | DirectionDown
-
-
 type BarImpact
     = Top
     | Middle
@@ -24,7 +19,6 @@ type alias Bar =
     { height : Int
     , width : Int
     , position : Position
-    , direction : Direction
     }
 
 
@@ -63,8 +57,8 @@ type alias Configuration =
 initialModel : Model
 initialModel =
     { isPaused = True -- Start the game in pause mode
-    , playerBar = Bar 200 2 (Position 50 170) DirectionUp
-    , computerBar = Bar 200 2 (Position (toFloat config.width - 50) 180) DirectionUp
+    , playerBar = Bar 200 2 (Position 50 170)
+    , computerBar = Bar 200 2 (Position (toFloat config.width - 50) 180)
     , ball = Ball 400 200 10 2 10
     }
 

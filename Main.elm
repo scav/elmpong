@@ -165,22 +165,7 @@ moveComputer : Model -> Bar
 moveComputer model =
     case model.isPaused of
         False ->
-            case collision model.computerBar of
-                True ->
-                    case model.computerBar.direction of
-                        DirectionUp ->
-                            switchDirection (updateBarPosition model.computerBar (10))
-
-                        DirectionDown ->
-                            switchDirection (updateBarPosition model.computerBar (-10))
-
-                False ->
-                    case model.computerBar.direction of
-                        DirectionUp ->
-                            updateBarPosition model.computerBar (-10)
-
-                        DirectionDown ->
-                            updateBarPosition model.computerBar (10)
+            updateBarPosition model.computerBar (model.ball.vy)
 
         _ ->
             model.computerBar
@@ -285,13 +270,3 @@ collision bar =
             True
         else
             False
-
-
-switchDirection : Bar -> Bar
-switchDirection bar =
-    case bar.direction of
-        DirectionUp ->
-            { bar | direction = DirectionDown }
-
-        DirectionDown ->
-            { bar | direction = DirectionUp }
