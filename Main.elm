@@ -90,13 +90,13 @@ view model =
         border =
             Svg.rect [ SA.width config.widthpx, SA.height config.heightpx, fill "#A4A4A4", stroke "#01DF01", strokeWidth "5" ] []
 
-        leftBar =
+        svgPlayerBar =
             Svg.rect [ x (toString model.playerBar.position.x), y (toString model.playerBar.position.y), SA.width (toString model.playerBar.width), SA.height (toString model.playerBar.height), stroke "green" ] []
 
-        rightBar =
+        svgComputerBar =
             Svg.rect [ x (toString model.computerBar.position.x), y (toString model.computerBar.position.y), SA.width (toString model.computerBar.width), SA.height (toString model.computerBar.height), stroke "red" ] []
 
-        ball =
+        svgBall =
             Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [ CSS.Ball ] ] []
     in
         Html.body []
@@ -117,9 +117,9 @@ view model =
                 , Html.div [ HA.class "gamefield" ]
                     [ Svg.svg [ viewBox config.viewboxSize, SA.width config.widthpx, SA.height config.heightpx ]
                         [ border
-                        , rightBar
-                        , leftBar
-                        , ball
+                        , svgComputerBar
+                        , svgPlayerBar
+                        , svgBall
                         ]
                     ]
                 ]
@@ -222,16 +222,18 @@ ballVectors model =
         playerBar =
             model.playerBar
     in
-        if (ball.x == playerBar.position.x && barCollision playerBar ball) then
+        if (ball.x == playerBar.position.x && ballHitBar playerBar ball) then
             ( negate ball.vx, negate ball.vy )
-        else if (ball.x == computerBar.position.x && barCollision computerBar ball) then
+        else if (ball.x == computerBar.position.x && ballHitBar computerBar ball) then
             ( negate ball.vx, ball.vy )
         else
             ( ball.vx, ball.vy )
 
 
-barCollision : Bar -> Ball -> Bool
-barCollision bar ball =
+{-| Check if Ball crosses the Y-axis of Bar
+-}
+ballHitBar : Bar -> Ball -> Bool
+ballHitBar bar ball =
     let
         top =
             bar.position.y + (toFloat bar.height) / (toFloat config.height)
