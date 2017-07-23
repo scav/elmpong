@@ -64,7 +64,7 @@ update msg model =
                             PlayerScore ->
                                 ( { model
                                     | gameScore = GameScore model.gameScore.computer (model.gameScore.player + 1)
-                                    , ball = Models.Ball 400 200 10 2 10
+                                    , ball = Models.defaultBall
                                   }
                                 , Cmd.none
                                 )
@@ -72,7 +72,7 @@ update msg model =
                             ComputerScore ->
                                 ( { model
                                     | gameScore = GameScore (model.gameScore.computer + 1) model.gameScore.player
-                                    , ball = Models.Ball 400 200 10 2 10
+                                    , ball = Models.defaultBall
                                   }
                                 , Cmd.none
                                 )
