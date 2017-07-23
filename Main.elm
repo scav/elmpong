@@ -194,9 +194,6 @@ movePlayer model keyCode =
             model.playerBar
 
 
-{-| Move computer in a stupid way, only moving it up and down based on the
-current direction of the ball. The computer always win in the end.
--}
 moveComputer : Model -> Bar
 moveComputer model =
     case model.isPaused of
@@ -211,9 +208,6 @@ moveComputer model =
             model.computerBar
 
 
-{-| Move the ball based on some super simple vector subtraction.
-Will expand later. In order to turn direction: (negate <| vector_speed)
--}
 moveBall_ : Model -> Model
 moveBall_ model =
     case model.isPaused of
@@ -309,10 +303,6 @@ whichBar bar ball =
     bar
 
 
-{-| Regn ut hvilken side av banen ballen er på!
-Denne metoden er det som failer akkurat nå.
-Den lar ballen bare stå i ro midt på banen.
--}
 barImpact : Bar -> Ball -> ( Float, Float )
 barImpact bar ball =
     let
