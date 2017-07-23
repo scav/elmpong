@@ -13,6 +13,7 @@ import Models exposing (..)
 import KeyMap exposing (..)
 import Style as CSS exposing (..)
 import Tuple exposing (first, second)
+import Debug as DBG exposing (..)
 
 
 -- MAIN
@@ -50,7 +51,44 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateView time ->
-            ( { model | ball = moveBall model, computerBar = moveComputer model }, Cmd.none )
+            let
+                newModel =
+                    moveBall model
+
+                newBall =
+                    newModel.ball
+            in
+                case boundsCollision newBall of
+                    Scorer scorer ->
+                        case scorer of
+                            PlayerScore ->
+                                ( { model
+                                    | gameScore = GameScore model.gameScore.computer (model.gameScore.player + 1)
+                                    , ball = Models.Ball 400 200 10 2 10
+                                  }
+                                , Cmd.none
+                                )
+
+                            ComputerScore ->
+                                ( { model
+                                    | gameScore = GameScore (model.gameScore.computer + 1) model.gameScore.player
+                                    , ball = Models.Ball 400 200 10 2 10
+                                  }
+                                , Cmd.none
+                                )
+
+                    Border ->
+                        let
+                            ball =
+                                model.ball
+
+                            newBall =
+                                { ball | vy = (negate ball.vy) }
+                        in
+                            ( { model | ball = newBall }, Cmd.none )
+
+                    _ ->
+                        ( { model | ball = newBall, computerBar = moveComputer model }, Cmd.none )
 
         KeyMsg keyCode ->
             case (KeyMap.keytype keyCode) of
@@ -71,7 +109,7 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ AnimationFrame.diffs UpdateView
+        [ AnimationFrame.times UpdateView
         , Keyboard.downs KeyMsg
         ]
 
@@ -88,13 +126,13 @@ view : Model -> Html Msg
 view model =
     let
         border =
-            Svg.rect [ SA.width config.widthpx, SA.height config.heightpx, fill "#A4A4A4", stroke "#01DF01", strokeWidth "5" ] []
+            Svg.rect [ SA.width (toString config.width), SA.height (toString config.height), fill "#A4A4A4", stroke "#01DF01", strokeWidth "5" ] []
 
         svgPlayerBar =
-            Svg.rect [ x (toString model.playerBar.position.x), y (toString model.playerBar.position.y), SA.width (toString model.playerBar.width), SA.height (toString model.playerBar.height), stroke "green" ] []
+            Svg.rect [ x (toString model.playerBar.x), y (toString model.playerBar.y), SA.width (toString model.playerBar.width), SA.height (toString model.playerBar.height), stroke "green" ] []
 
         svgComputerBar =
-            Svg.rect [ x (toString model.computerBar.position.x), y (toString model.computerBar.position.y), SA.width (toString model.computerBar.width), SA.height (toString model.computerBar.height), stroke "red" ] []
+            Svg.rect [ x (toString model.computerBar.x), y (toString model.computerBar.y), SA.width (toString model.computerBar.width), SA.height (toString model.computerBar.height), stroke "red" ] []
 
         svgBall =
             Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [ CSS.Ball ] ] []
@@ -111,11 +149,19 @@ view model =
                     , Html.br [] []
                     , Html.text ("Computer: " ++ toString model.computerBar)
                     , Html.br [] []
-                    , Html.text ("Ball location x:" ++ toString model.ball)
+                    , Html.text ("Ball: " ++ toString model.ball)
+                    , Html.br [] []
+                    , Html.text
+                        ("Score:  Player "
+                            ++ (toString model.gameScore.player)
+                            ++ " - "
+                            ++ (toString model.gameScore.computer)
+                            ++ " Computer"
+                        )
                     , Html.br [] []
                     ]
                 , Html.div [ HA.class "gamefield" ]
-                    [ Svg.svg [ viewBox config.viewboxSize, SA.width config.widthpx, SA.height config.heightpx ]
+                    [ Svg.svg [ viewBox config.viewboxSize, SA.width (toString config.width), SA.height (toString config.height) ]
                         [ border
                         , svgComputerBar
                         , svgPlayerBar
@@ -136,16 +182,10 @@ movePlayer model keyCode =
         False ->
             case (KeyMap.keytype keyCode) of
                 Up ->
-                    if (model.playerBar.position.y == 0) then
-                        model.playerBar
-                    else
-                        updateBarPosition model.playerBar (-30)
+                    updateBarPosition model.playerBar (-30)
 
                 Down ->
-                    if (model.playerBar.position.y == 400) then
-                        model.playerBar
-                    else
-                        updateBarPosition model.playerBar (30)
+                    updateBarPosition model.playerBar (30)
 
                 _ ->
                     model.playerBar
@@ -154,18 +194,18 @@ movePlayer model keyCode =
             model.playerBar
 
 
-
--- Computers movement
-
-
 {-| Move computer in a stupid way, only moving it up and down based on the
-current direction of the model.
+current direction of the ball. The computer always win in the end.
 -}
 moveComputer : Model -> Bar
 moveComputer model =
     case model.isPaused of
         False ->
-            updateBarPosition model.computerBar (model.ball.vy)
+            let
+                ball =
+                    model.ball
+            in
+                updateBarPosition model.computerBar (ball.vy)
 
         _ ->
             model.computerBar
@@ -174,7 +214,30 @@ moveComputer model =
 {-| Move the ball based on some super simple vector subtraction.
 Will expand later. In order to turn direction: (negate <| vector_speed)
 -}
-moveBall : Model -> Ball
+moveBall_ : Model -> Model
+moveBall_ model =
+    case model.isPaused of
+        False ->
+            let
+                ball =
+                    model.ball
+
+                bv =
+                    ballVectors model
+
+                target =
+                    (move ball.x ball.y (first bv) ((second bv)))
+
+                newBall =
+                    { ball | x = first target, y = second target, vx = first bv, vy = second bv }
+            in
+                { model | ball = newBall }
+
+        _ ->
+            model
+
+
+moveBall : Model -> Model
 moveBall model =
     case model.isPaused of
         False ->
@@ -186,33 +249,25 @@ moveBall model =
                     ballVectors model
 
                 target =
-                    (move ball.x ball.y (first bv) (second bv))
+                    (move ball.x ball.y (first bv) ((second bv)))
 
                 newBall =
                     { ball | x = first target, y = second target, vx = first bv, vy = second bv }
             in
-                newBall
+                { model | ball = newBall }
 
         _ ->
-            model.ball
+            model
 
 
-{-| Move any object based on its coordinates and vector.
--}
 move : Float -> Float -> Float -> Float -> ( Float, Float )
 move x y xv yv =
     ( (x - xv), (y - yv) )
 
 
-{-| Register if the ball collided with a bar, and negate the
-vector should that happen.
--}
 ballVectors : Model -> ( Float, Float )
 ballVectors model =
     let
-        midfield =
-            (toFloat config.width / 2)
-
         ball =
             model.ball
 
@@ -222,53 +277,70 @@ ballVectors model =
         playerBar =
             model.playerBar
     in
-        if (ball.x == playerBar.position.x && ballHitBar playerBar ball) then
-            ( negate ball.vx, negate ball.vy )
-        else if (ball.x == computerBar.position.x && ballHitBar computerBar ball) then
-            ( negate ball.vx, ball.vy )
+        if (barCollision playerBar ball) then
+            barImpact playerBar ball
+        else if (barCollision computerBar ball) then
+            barImpact computerBar ball
         else
             ( ball.vx, ball.vy )
 
 
 {-| Check if Ball crosses the Y-axis of Bar
 -}
-ballHitBar : Bar -> Ball -> Bool
-ballHitBar bar ball =
-    let
-        top =
-            bar.position.y + (toFloat bar.height) / (toFloat config.height)
+barCollision : Bar -> Ball -> Bool
+barCollision bar ball =
+    (bar.x
+        <= ball.x
+        + (ball.radius * 2)
+        && ball.x
+        <= bar.x
+        + bar.width
+        && bar.y
+        <= ball.y
+        + (ball.radius * 2)
+        && ball.y
+        <= bar.y
+        + bar.height
+    )
 
+
+whichBar : Bar -> Ball -> Bar
+whichBar bar ball =
+    bar
+
+
+{-| Regn ut hvilken side av banen ballen er på!
+Denne metoden er det som failer akkurat nå.
+Den lar ballen bare stå i ro midt på banen.
+-}
+barImpact : Bar -> Ball -> ( Float, Float )
+barImpact bar ball =
+    let
         bottom =
-            bar.position.y + (toFloat bar.height)
+            bar.y + bar.height
     in
-        if (ball.y < top || ball.y > bottom) then
-            False
+        if (ball.y < bottom - (bar.height / 2)) then
+            ( negate ball.vx, ball.vy )
         else
-            True
+            ( negate ball.vx, negate ball.vy )
+
+
+boundsCollision : Ball -> BoundCollision
+boundsCollision ball =
+    if (ball.y <= 0 || ball.y >= config.height) then
+        Border
+    else if (ball.x <= 0) then
+        Scorer ComputerScore
+    else if (ball.x >= config.width) then
+        Scorer PlayerScore
+    else
+        In
 
 
 updateBarPosition : Bar -> Float -> Bar
 updateBarPosition bar num =
     let
         newY =
-            bar.position.y + num
-
-        newPosition =
-            Position bar.position.x newY
+            bar.y + num
     in
-        { bar | position = newPosition }
-
-
-collision : Bar -> Bool
-collision bar =
-    let
-        y =
-            bar.position.y
-
-        bottom =
-            y + toFloat bar.height
-    in
-        if (y == 0 || y > 400) then
-            True
-        else
-            False
+        { bar | y = newY }

@@ -1,10 +1,20 @@
 module Models exposing (..)
 
 
-type BarImpact
-    = Top
-    | Middle
-    | Bottom
+type WhichBar
+    = PlayerBar
+    | ComputerBar
+
+
+type BoundCollision
+    = Border
+    | In
+    | Scorer Score -- Score for the player on the Y side.
+
+
+type Score
+    = PlayerScore
+    | ComputerScore
 
 
 type alias Model =
@@ -12,13 +22,21 @@ type alias Model =
     , playerBar : Bar
     , computerBar : Bar
     , ball : Ball
+    , gameScore : GameScore
+    }
+
+
+type alias GameScore =
+    { computer : Int
+    , player : Int
     }
 
 
 type alias Bar =
-    { height : Int
-    , width : Int
-    , position : Position
+    { x : Float
+    , y : Float
+    , height : Float
+    , width : Float
     }
 
 
@@ -42,10 +60,8 @@ type alias Position =
 
 
 type alias Configuration =
-    { height : Int
-    , width : Int
-    , heightpx : String
-    , widthpx : String
+    { height : Float
+    , width : Float
     , viewboxSize : String
     }
 
@@ -57,9 +73,10 @@ type alias Configuration =
 initialModel : Model
 initialModel =
     { isPaused = True -- Start the game in pause mode
-    , playerBar = Bar 200 2 (Position 50 170)
-    , computerBar = Bar 200 2 (Position (toFloat config.width - 50) 180)
+    , playerBar = Bar 50 170 200 2
+    , computerBar = Bar (config.width - 50) 180 200 2
     , ball = Ball 400 200 10 2 10
+    , gameScore = GameScore 0 0
     }
 
 
@@ -71,7 +88,5 @@ config : Configuration
 config =
     { height = 600
     , width = 800
-    , heightpx = "600"
-    , widthpx = "800"
     , viewboxSize = "0 0 800 600"
     }
