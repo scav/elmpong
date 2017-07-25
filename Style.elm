@@ -4,34 +4,84 @@ import Css exposing (..)
 import Css.Elements exposing (body, li)
 import Css.Namespace exposing (namespace)
 import Css.File
+import Models exposing (config)
 
 
 type CssClasses
-    = Info
+    = Title
+    | Info
     | Ball
+    | Bar
+    | PlayField
+    | ScoreBoard
+    | PScoreLine
+    | P1ScoreB
+    | P2ScoreB
 
 
 style : Stylesheet
 style =
     (stylesheet << namespace "elmpong")
         [ body
-            [ backgroundColor (rgb 200 128 64)
+            [ backgroundColor (rgb 224 224 224)
             , overflowX auto
-            , minWidth (px 1280)
+            , overflowY auto
+            , width (px config.width)
+            , padding (px 10)
             ]
-        , id Info
-            [ backgroundColor (rgb 200 128 64)
-            , color (hex "#CCFFFF")
-            , width (pct 100)
-            , height (pct 100)
+        , id Title
+            [ backgroundColor (rgb 224 224 224)
+            , color (rgb 64 0 64)
             , boxSizing borderBox
-            , padding (px 8)
-            , margin zero
+            , fontSize (px 30)
+            , paddingLeft (px 10)
             ]
         , id Ball
             [ fill (hex "#FFFF00")
             ]
+        , id PlayField
+            [ backgroundColor (rgb 20 128 90)
+            , fill (rgb 0 102 0)
+            , padding (px 8)
+            , margin (px 10)
+            ]
+        , id ScoreBoard
+            [ backgroundColor (rgb 64 0 64)
+            , width (px config.width)
+            , height (px 100)
+            ]
+        , id Bar
+            [ backgroundColor (rgb 64 0 64)
+            , color (rgb 64 0 64)
+            , fill (rgb 64 0 64)
+            , borderStyle dotted
+            ]
+        , id P1ScoreB
+            [ color (rgb 224 224 224)
+            , fontSize (px 50)
+            , float left
+            , marginLeft (px (config.width / 2.8))
+            , marginTop (px 20)
+            ]
+        , id P2ScoreB
+            [ color (rgb 224 224 224)
+            , fontSize (px 50)
+            , float right
+            , marginRight (px (config.width / 2.8))
+            , marginTop (px 20)
+            ]
+        , id PScoreLine
+            [ color (rgb 224 224 224)
+            , fontSize (px 50)
+            , float left
+            , marginTop (px 20)
+            , marginLeft (px 80)
+            ]
         ]
+
+
+
+--fill "#00000", stroke "#01DF01", strokeWidth "5"
 
 
 css : String

@@ -11,7 +11,8 @@ import AnimationFrame exposing (..)
 import Html.CssHelpers as CSSH exposing (..)
 import Models exposing (..)
 import KeyMap exposing (..)
-import Style as CSS exposing (..)
+import Style as Style exposing (..)
+import Css as Css exposing (..)
 import Tuple exposing (first, second)
 
 
@@ -62,7 +63,7 @@ update msg model =
                         case scorer of
                             P1Score ->
                                 ( { model
-                                    | gameScore = GameScore model.gameScore.computer (model.gameScore.player + 1)
+                                    | gameScore = GameScore (model.gameScore.p1 + 1) model.gameScore.p2
                                     , ball = Models.defaultBall
                                   }
                                 , Cmd.none
@@ -70,7 +71,7 @@ update msg model =
 
                             P2Score ->
                                 ( { model
-                                    | gameScore = GameScore (model.gameScore.computer + 1) model.gameScore.player
+                                    | gameScore = GameScore model.gameScore.p1 (model.gameScore.p2 + 1)
                                     , ball = Models.defaultBall
                                   }
                                 , Cmd.none
@@ -137,47 +138,35 @@ view : Model -> Html Msg
 view model =
     let
         border =
-            Svg.rect [ SA.width (toString config.width), SA.height (toString config.height), fill "#A4A4A4", stroke "#01DF01", strokeWidth "5" ] []
+            Svg.rect [ SA.width (toString config.width), SA.height (toString config.height), id [ Style.PlayField ] ] []
 
         svgPlayerBar =
-            Svg.rect [ x (toString model.p1Bar.x), y (toString model.p1Bar.y), SA.width (toString model.p1Bar.width), SA.height (toString model.p1Bar.height), stroke "green" ] []
+            Svg.rect [ x (toString model.p1Bar.x), y (toString model.p1Bar.y), SA.width (toString model.p1Bar.width), SA.height (toString model.p1Bar.height), id [ Style.Bar ] ] []
 
         svgComputerBar =
-            Svg.rect [ x (toString model.p2Bar.x), y (toString model.p2Bar.y), SA.width (toString model.p2Bar.width), SA.height (toString model.p2Bar.height), stroke "red" ] []
+            Svg.rect [ x (toString model.p2Bar.x), y (toString model.p2Bar.y), SA.width (toString model.p2Bar.width), SA.height (toString model.p2Bar.height), id [ Style.Bar ] ] []
 
         svgBall =
-            Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [ CSS.Ball ] ] []
+            Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [ Style.Ball ] ] []
     in
         Html.body []
             [ Html.div []
-                [ Html.div []
-                    [ Html.CssHelpers.style CSS.css -- Adding CSS
-                    , Html.text "ElmPong"
-                    , Html.br [] []
-                    , Html.text ("Player 1:" ++ toString model.p1Bar)
-                    , Html.br [] []
-                    , Html.text ("Game state: " ++ toString model.isPaused)
-                    , Html.br [] []
-                    , Html.text ("Player 2: " ++ toString model.p2Bar)
-                    , Html.br [] []
-                    , Html.text ("Ball: " ++ toString model.ball)
-                    , Html.br [] []
-                    , Html.text
-                        ("Score:  Player 1 [ "
-                            ++ (toString model.gameScore.player)
-                            ++ " - "
-                            ++ (toString model.gameScore.computer)
-                            ++ " ] Player 2"
-                        )
-                    , Html.br [] []
+                [ Html.CssHelpers.style Style.css -- Adding CSS
+                , div [ id [ Style.Title ] ]
+                    [ Html.text "ElmPong"
                     ]
-                , Html.div [ HA.class "gamefield" ]
-                    [ Svg.svg [ viewBox config.viewboxSize, SA.width (toString config.width), SA.height (toString config.height) ]
-                        [ border
-                        , svgComputerBar
-                        , svgPlayerBar
-                        , svgBall
-                        ]
+                ]
+            , Html.div [ id [ Style.ScoreBoard ] ]
+                [ Html.span [ id [ Style.P1ScoreB ] ] [ Html.text (toString model.gameScore.p1) ]
+                , Html.span [ id [ Style.PScoreLine ] ] [ Html.text "-" ]
+                , Html.span [ id [ Style.P2ScoreB ] ] [ Html.text (toString model.gameScore.p2) ]
+                ]
+            , Html.div [ class [ Style.PlayField ] ]
+                [ Svg.svg [ SA.viewBox config.viewboxSize, SA.width (toString config.width), SA.height (toString config.height) ]
+                    [ border
+                    , svgComputerBar
+                    , svgPlayerBar
+                    , svgBall
                     ]
                 ]
             ]
@@ -235,10 +224,10 @@ moveBall model =
                     ballVectors model
 
                 target =
-                    (move ball.x ball.y (first bv) ((second bv)))
+                    (move ball.x ball.y (Tuple.first bv) ((second bv)))
 
                 newBall =
-                    { ball | x = first target, y = second target, vx = first bv, vy = second bv }
+                    { ball | x = Tuple.first target, y = second target, vx = Tuple.first bv, vy = second bv }
             in
                 { model | ball = newBall }
 
@@ -288,11 +277,6 @@ barCollision bar ball =
         <= bar.y
         + bar.height
     )
-
-
-whichBar : Bar -> Ball -> Bar
-whichBar bar ball =
-    bar
 
 
 barImpact : Bar -> Ball -> ( Float, Float )
