@@ -1,37 +1,32 @@
-{--
-    The simple module containing a very rudamentary keymap
-    that can be used to control the game.
---}
-
-
 module KeyMap exposing (..)
-
--- Represent keys as types to faclilitate pattern matching
--- type alias Key = { keyCode : Keyboard.KeyCode }
 
 
 type Key
-    = Up
-    | Down
+    = P1Up
+    | P1Down
+    | P2Up
+    | P2Down
     | Pause
     | Undefined
-
-
-
--- Matches a KeyCode to the Key type
 
 
 keytype : Int -> Key
 keytype keyCode =
     case keyCode of
         38 ->
-            Up
+            P1Up
 
         40 ->
-            Down
+            P1Down
 
-        80 ->
+        32 ->
             Pause
+
+        83 ->
+            P2Down
+
+        87 ->
+            P2Up
 
         _ ->
             Undefined
