@@ -13,19 +13,19 @@ type Key
 keytype : Int -> Key
 keytype keyCode =
     case keyCode of
-        38 ->
+        87 ->
             P1Up
 
-        40 ->
+        83 ->
             P1Down
 
         32 ->
             Pause
 
-        83 ->
+        76 ->
             P2Down
 
-        87 ->
+        79 ->
             P2Up
 
         _ ->

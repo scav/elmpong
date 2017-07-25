@@ -175,10 +175,12 @@ view model =
                     ]
                 , Html.div [ class [ Style.Instructions ] ]
                     [ Html.text "This game is controlled by two players."
-                    , Html.p [] []
-                    , Html.text "Left side is P1 and right side is P2"
                     , Html.br [] []
-                    , Html.text "P1 uses up/down arrows while P2 uses W (up) and S (down)"
+                    , Html.text "Left side is P1 and right side is P2"
+                    , Html.p [] []
+                    , Html.text "P1: W (up) and S (down)"
+                    , Html.br [] []
+                    , Html.text "P2: O (up) and L (down)"
                     ]
                 ]
             ]
