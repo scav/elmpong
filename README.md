@@ -3,10 +3,15 @@
 A very simple, and badly implemented Pong game.
 
 #### State
-* Basic mechanics are in place, but the code and implementation will be improved upon.
-* Currently, simple vector subtractions control movement of the ball, the only "free" object.
-* The computer is dumb.
+* Two player controls (currently lacking proper bar movement)
+* Out of bounds and scoring support
+* Keeping count of scores
+* Controlling ball direction by hitting bar at top or bottom 
 
+#### Plans
+* Better visuals / features
+* Speed / vector based player controls
+* Synchronize game state between each tick
 
 #### Motivations
 1. Learning Elm by writing pong.
