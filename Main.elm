@@ -61,7 +61,7 @@ update msg model =
                 case boundsCollision newBall of
                     Scorer scorer ->
                         case scorer of
-                            PlayerScore ->
+                            P1Score ->
                                 ( { model
                                     | gameScore = GameScore model.gameScore.computer (model.gameScore.player + 1)
                                     , ball = Models.defaultBall
@@ -69,7 +69,7 @@ update msg model =
                                 , Cmd.none
                                 )
 
-                            ComputerScore ->
+                            P2Score ->
                                 ( { model
                                     | gameScore = GameScore (model.gameScore.computer + 1) model.gameScore.player
                                     , ball = Models.defaultBall
@@ -87,8 +87,8 @@ update msg model =
                         in
                             ( { model | ball = newBall }, Cmd.none )
 
-                    _ ->
-                        ( { model | ball = newBall, computerBar = moveComputer model }, Cmd.none )
+                    None ->
+                        ( newModel, Cmd.none )
 
         KeyMsg keyCode ->
             case (KeyMap.keytype keyCode) of
@@ -98,8 +98,20 @@ update msg model =
                     else
                         ( { model | isPaused = True }, Cmd.none )
 
-                _ ->
-                    ( { model | playerBar = movePlayer model keyCode }, Cmd.none )
+                P1Up ->
+                    ( { model | p1Bar = moveP1 model keyCode }, Cmd.none )
+
+                P1Down ->
+                    ( { model | p1Bar = moveP1 model keyCode }, Cmd.none )
+
+                P2Up ->
+                    ( { model | p2Bar = moveP2 model keyCode }, Cmd.none )
+
+                P2Down ->
+                    ( { model | p2Bar = moveP2 model keyCode }, Cmd.none )
+
+                Undefined ->
+                    ( model, Cmd.none )
 
 
 
@@ -129,10 +141,10 @@ view model =
             Svg.rect [ SA.width (toString config.width), SA.height (toString config.height), fill "#A4A4A4", stroke "#01DF01", strokeWidth "5" ] []
 
         svgPlayerBar =
-            Svg.rect [ x (toString model.playerBar.x), y (toString model.playerBar.y), SA.width (toString model.playerBar.width), SA.height (toString model.playerBar.height), stroke "green" ] []
+            Svg.rect [ x (toString model.p1Bar.x), y (toString model.p1Bar.y), SA.width (toString model.p1Bar.width), SA.height (toString model.p1Bar.height), stroke "green" ] []
 
         svgComputerBar =
-            Svg.rect [ x (toString model.computerBar.x), y (toString model.computerBar.y), SA.width (toString model.computerBar.width), SA.height (toString model.computerBar.height), stroke "red" ] []
+            Svg.rect [ x (toString model.p2Bar.x), y (toString model.p2Bar.y), SA.width (toString model.p2Bar.width), SA.height (toString model.p2Bar.height), stroke "red" ] []
 
         svgBall =
             Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [ CSS.Ball ] ] []
@@ -143,11 +155,11 @@ view model =
                     [ Html.CssHelpers.style CSS.css -- Adding CSS
                     , Html.text "ElmPong"
                     , Html.br [] []
-                    , Html.text ("Player :" ++ toString model.playerBar)
+                    , Html.text ("Player 1:" ++ toString model.p1Bar)
                     , Html.br [] []
                     , Html.text ("Game state: " ++ toString model.isPaused)
                     , Html.br [] []
-                    , Html.text ("Computer: " ++ toString model.computerBar)
+                    , Html.text ("Player 2: " ++ toString model.p2Bar)
                     , Html.br [] []
                     , Html.text ("Ball: " ++ toString model.ball)
                     , Html.br [] []
@@ -176,59 +188,40 @@ view model =
 -- APPLICATION LOGIC
 
 
-movePlayer : Model -> Int -> Bar
-movePlayer model keyCode =
+moveP1 : Model -> Int -> Bar
+moveP1 model keyCode =
     case model.isPaused of
         False ->
             case (KeyMap.keytype keyCode) of
-                Up ->
-                    updateBarPosition model.playerBar (-30)
+                P1Up ->
+                    updateBarPosition model.p1Bar (-30)
 
-                Down ->
-                    updateBarPosition model.playerBar (30)
+                P1Down ->
+                    updateBarPosition model.p1Bar (30)
 
                 _ ->
-                    model.playerBar
+                    model.p1Bar
 
         _ ->
-            model.playerBar
+            model.p1Bar
 
 
-moveComputer : Model -> Bar
-moveComputer model =
+moveP2 : Model -> Int -> Bar
+moveP2 model keyCode =
     case model.isPaused of
         False ->
-            let
-                ball =
-                    model.ball
-            in
-                updateBarPosition model.computerBar (ball.vy)
+            case (KeyMap.keytype keyCode) of
+                P2Up ->
+                    updateBarPosition model.p2Bar (-30)
+
+                P2Down ->
+                    updateBarPosition model.p2Bar (30)
+
+                _ ->
+                    model.p2Bar
 
         _ ->
-            model.computerBar
-
-
-moveBall_ : Model -> Model
-moveBall_ model =
-    case model.isPaused of
-        False ->
-            let
-                ball =
-                    model.ball
-
-                bv =
-                    ballVectors model
-
-                target =
-                    (move ball.x ball.y (first bv) ((second bv)))
-
-                newBall =
-                    { ball | x = first target, y = second target, vx = first bv, vy = second bv }
-            in
-                { model | ball = newBall }
-
-        _ ->
-            model
+            model.p2Bar
 
 
 moveBall : Model -> Model
@@ -265,16 +258,16 @@ ballVectors model =
         ball =
             model.ball
 
-        computerBar =
-            model.computerBar
+        p2Bar =
+            model.p2Bar
 
-        playerBar =
-            model.playerBar
+        p1Bar =
+            model.p1Bar
     in
-        if (barCollision playerBar ball) then
-            barImpact playerBar ball
-        else if (barCollision computerBar ball) then
-            barImpact computerBar ball
+        if (barCollision p1Bar ball) then
+            barImpact p1Bar ball
+        else if (barCollision p2Bar ball) then
+            barImpact p2Bar ball
         else
             ( ball.vx, ball.vy )
 
@@ -320,11 +313,11 @@ boundsCollision ball =
     if (ball.y <= 0 || ball.y >= config.height) then
         Border
     else if (ball.x <= 0) then
-        Scorer ComputerScore
+        Scorer P2Score
     else if (ball.x >= config.width) then
-        Scorer PlayerScore
+        Scorer P1Score
     else
-        In
+        None
 
 
 updateBarPosition : Bar -> Float -> Bar

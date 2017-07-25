@@ -2,27 +2,29 @@ module Models exposing (..)
 
 
 type WhichBar
-    = PlayerBar
+    = Player1Bar
     | ComputerBar
 
 
 type BoundCollision
     = Border
-    | In
     | Scorer Score -- Score for the player on the Y side.
+    | None
 
 
 type Score
-    = PlayerScore
-    | ComputerScore
+    = P1Score
+    | P2Score
 
 
 type alias Model =
     { isPaused : Bool
-    , playerBar : Bar
-    , computerBar : Bar
+    , p1Bar : Bar
+    , p2Bar : Bar
     , ball : Ball
     , gameScore : GameScore
+
+    -- , messages : List String
     }
 
 
@@ -73,10 +75,12 @@ type alias Configuration =
 initialModel : Model
 initialModel =
     { isPaused = True -- Start the game in pause mode
-    , playerBar = Bar 50 170 200 2
-    , computerBar = Bar (config.width - 50) 180 200 2
+    , p1Bar = Bar 50 170 200 2
+    , p2Bar = Bar (config.width - 50) 180 200 2
     , ball = defaultBall
     , gameScore = GameScore 0 0
+
+    --, messages = [ "--" ]
     }
 
 
