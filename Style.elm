@@ -8,7 +8,8 @@ import Models exposing (config)
 
 
 type CssClasses
-    = Title
+    = GameContent
+    | Title
     | Info
     | Ball
     | Bar
@@ -17,6 +18,7 @@ type CssClasses
     | PScoreLine
     | P1ScoreB
     | P2ScoreB
+    | Instructions
 
 
 style : Stylesheet
@@ -26,10 +28,13 @@ style =
             [ backgroundColor (rgb 224 224 224)
             , overflowX auto
             , overflowY auto
-            , width (px config.width)
             , padding (px 10)
             ]
-        , id Title
+        , id GameContent
+            [ float left
+            , width (px (config.width))
+            ]
+        , class Title
             [ backgroundColor (rgb 224 224 224)
             , color (rgb 64 0 64)
             , boxSizing borderBox
@@ -76,6 +81,11 @@ style =
             , float left
             , marginTop (px 20)
             , marginLeft (px 80)
+            ]
+        , id Instructions
+            [ backgroundColor (rgb 64 0 64)
+            , color (rgb 224 224 224)
+            , float right
             ]
         ]
 

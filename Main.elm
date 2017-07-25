@@ -150,23 +150,35 @@ view model =
             Svg.circle [ cx (toString model.ball.x), cy (toString model.ball.y), r (toString model.ball.radius), id [ Style.Ball ] ] []
     in
         Html.body []
-            [ Html.div []
-                [ Html.CssHelpers.style Style.css -- Adding CSS
-                , div [ id [ Style.Title ] ]
+            [ Html.CssHelpers.style Style.css
+            , Html.div [ id [ Style.GameContent ] ]
+                [ Html.div [ class [ Style.Title ] ]
                     [ Html.text "ElmPong"
                     ]
+                , Html.div [ id [ Style.ScoreBoard ] ]
+                    [ Html.span [ id [ Style.P1ScoreB ] ] [ Html.text (toString model.gameScore.p1) ]
+                    , Html.span [ id [ Style.PScoreLine ] ] [ Html.text "-" ]
+                    , Html.span [ id [ Style.P2ScoreB ] ] [ Html.text (toString model.gameScore.p2) ]
+                    ]
+                , Html.div [ class [ Style.PlayField ] ]
+                    [ Svg.svg [ SA.viewBox config.viewboxSize, SA.width (toString config.width), SA.height (toString config.height) ]
+                        [ border
+                        , svgComputerBar
+                        , svgPlayerBar
+                        , svgBall
+                        ]
+                    ]
                 ]
-            , Html.div [ id [ Style.ScoreBoard ] ]
-                [ Html.span [ id [ Style.P1ScoreB ] ] [ Html.text (toString model.gameScore.p1) ]
-                , Html.span [ id [ Style.PScoreLine ] ] [ Html.text "-" ]
-                , Html.span [ id [ Style.P2ScoreB ] ] [ Html.text (toString model.gameScore.p2) ]
-                ]
-            , Html.div [ class [ Style.PlayField ] ]
-                [ Svg.svg [ SA.viewBox config.viewboxSize, SA.width (toString config.width), SA.height (toString config.height) ]
-                    [ border
-                    , svgComputerBar
-                    , svgPlayerBar
-                    , svgBall
+            , Html.div [ id [ Style.Instructions ] ]
+                [ Html.div [ class [ Style.Title ] ]
+                    [ Html.text "Instructions"
+                    ]
+                , Html.div [ class [ Style.Instructions ] ]
+                    [ Html.text "This game is controlled by two players."
+                    , Html.p [] []
+                    , Html.text "Left side is P1 and right side is P2"
+                    , Html.br [] []
+                    , Html.text "P1 uses up/down arrows while P2 uses W (up) and S (down)"
                     ]
                 ]
             ]
