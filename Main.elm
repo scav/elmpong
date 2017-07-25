@@ -13,7 +13,6 @@ import Models exposing (..)
 import KeyMap exposing (..)
 import Style as CSS exposing (..)
 import Tuple exposing (first, second)
-import Debug as DBG exposing (..)
 
 
 -- MAIN
@@ -164,11 +163,11 @@ view model =
                     , Html.text ("Ball: " ++ toString model.ball)
                     , Html.br [] []
                     , Html.text
-                        ("Score:  Player "
+                        ("Score:  Player 1 [ "
                             ++ (toString model.gameScore.player)
                             ++ " - "
                             ++ (toString model.gameScore.computer)
-                            ++ " Computer"
+                            ++ " ] Player 2"
                         )
                     , Html.br [] []
                     ]
