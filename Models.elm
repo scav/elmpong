@@ -23,14 +23,13 @@ type alias Model =
     , p2Bar : Bar
     , ball : Ball
     , gameScore : GameScore
-
-    -- , messages : List String
+    , showDebug : Bool
     }
 
 
 type alias GameScore =
-    { computer : Int
-    , player : Int
+    { p1 : Int
+    , p2 : Int
     }
 
 
@@ -49,10 +48,6 @@ type alias Ball =
     , vy : Float
     , radius : Float
     }
-
-
-
--- Any objects position
 
 
 type alias Position =
@@ -75,19 +70,18 @@ type alias Configuration =
 initialModel : Model
 initialModel =
     { isPaused = True -- Start the game in pause mode
-    , p1Bar = Bar 50 170 200 2
-    , p2Bar = Bar (config.width - 50) 180 200 2
+    , p1Bar = Bar 50 170 200 5
+    , p2Bar = Bar (config.width - 50) 180 200 5
     , ball = defaultBall
     , gameScore = GameScore 0 0
-
-    --, messages = [ "--" ]
+    , showDebug = False
     }
 
 
 defaultBall : Ball
 defaultBall =
     { x = 400
-    , y = 200
+    , y = 250
     , vx = 5
     , vy = 2
     , radius = 10
