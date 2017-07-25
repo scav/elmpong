@@ -9,7 +9,6 @@ A very simple, and badly implemented Pong game.
 * Controlling ball direction by hitting bar at top or bottom 
 
 #### Plans
-* Better visuals / features
 * Speed / vector based player controls
 * Synchronize game state between each tick
 
