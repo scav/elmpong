@@ -5,14 +5,12 @@ import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
 import Time exposing (Time, millisecond)
 import Html as Html exposing (..)
-import Html.Attributes as HA exposing (..)
 import Keyboard
 import AnimationFrame exposing (..)
 import Html.CssHelpers as CSSH exposing (..)
 import Models exposing (..)
 import KeyMap exposing (..)
 import Style as Style exposing (..)
-import Css as Css exposing (..)
 import Tuple exposing (first, second)
 
 
@@ -58,7 +56,7 @@ update msg model =
                 newBall =
                     newModel.ball
             in
-                case boundsCollision newBall of
+                case boundsCollision config.height config.width newBall of
                     Scorer scorer ->
                         case scorer of
                             P1Score ->
@@ -305,13 +303,13 @@ barImpact bar ball =
             ( negate ball.vx, negate ball.vy )
 
 
-boundsCollision : Ball -> BoundCollision
-boundsCollision ball =
-    if (ball.y <= 0 || ball.y >= config.height) then
+boundsCollision : Float -> Float -> Ball -> BoundCollision
+boundsCollision h w ball =
+    if (ball.y <= 0 || ball.y >= h) then
         Border
     else if (ball.x <= 0) then
         Scorer P2Score
-    else if (ball.x >= config.width) then
+    else if (ball.x >= w) then
         Scorer P1Score
     else
         None
