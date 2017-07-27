@@ -12,6 +12,7 @@ import Models exposing (..)
 import KeyMap exposing (..)
 import Style as Style exposing (..)
 import Tuple exposing (first, second)
+import Random
 
 
 -- MAIN
@@ -39,6 +40,8 @@ init =
 type Msg
     = KeyMsg Keyboard.KeyCode
     | UpdateView Time
+    | RespawnBall Float
+    | RespawnBallDirection Int
 
 
 
@@ -64,7 +67,7 @@ update msg model =
                                     | gameScore = GameScore (model.gameScore.p1 + 1) model.gameScore.p2
                                     , ball = Models.defaultBall
                                   }
-                                , Cmd.none
+                                , spawnBallY
                                 )
 
                             P2Score ->
@@ -72,7 +75,7 @@ update msg model =
                                     | gameScore = GameScore model.gameScore.p1 (model.gameScore.p2 + 1)
                                     , ball = Models.defaultBall
                                   }
-                                , Cmd.none
+                                , spawnBallY
                                 )
 
                     Border ->
@@ -110,6 +113,19 @@ update msg model =
 
                 Undefined ->
                     ( model, Cmd.none )
+
+        RespawnBall y ->
+            let
+                ball =
+                    model.ball
+
+                newBall =
+                    { ball | y = y }
+            in
+                ( { model | ball = newBall }, spawnDirection )
+
+        RespawnBallDirection direction ->
+            ( { model | ball = (ballDirection direction model) }, Cmd.none )
 
 
 
@@ -322,3 +338,33 @@ updateBarPosition bar num =
             bar.y + num
     in
         { bar | y = newY }
+
+
+spawnBallY : Cmd Msg
+spawnBallY =
+    Random.generate RespawnBall (Random.float 100 500)
+
+
+spawnDirection : Cmd Msg
+spawnDirection =
+    Random.generate RespawnBallDirection (Random.int 1 4)
+
+
+ballDirection : Int -> Model -> Ball
+ballDirection x model =
+    let
+        ball =
+            model.ball
+    in
+        case x of
+            1 ->
+                { ball | vy = (model.ball.vy), vx = (negate model.ball.vx) }
+
+            2 ->
+                { ball | vy = (negate model.ball.vy), vx = (negate model.ball.vx) }
+
+            3 ->
+                { ball | vy = (negate model.ball.vy), vx = (model.ball.vx) }
+
+            _ ->
+                { ball | vy = (model.ball.vy), vx = (model.ball.vx) }

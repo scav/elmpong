@@ -17,6 +17,11 @@ type Score
     | P2Score
 
 
+type Directional
+    = Left
+    | Right
+
+
 type alias Model =
     { isPaused : Bool
     , p1Bar : Bar
